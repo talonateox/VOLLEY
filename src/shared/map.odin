@@ -28,7 +28,7 @@ get_tile :: proc(tiles: []Tile_Type, x, y: u32) {
 }
 
 load_map :: proc(path: string) -> (Map, Map_Error) {
-	src_raw, ferr := os.read_entire_file_from_path(path, context.allocator)
+	src_raw, ferr := os.read_entire_file_from_path(path, context.temp_allocator)
 	if ferr != nil {
 		return {}, .Failed_To_Open_File
 	}
