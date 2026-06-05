@@ -5,9 +5,6 @@ import "core:strings"
 import sdl "vendor:sdl3"
 
 draw_debug_text :: proc(e: ^Engine, color: Color, x: f32, y: f32, args: ..any) {
-	r, g, b, a: u8 = 0, 0, 0, 0
-	sdl.GetRenderDrawColor(e.renderer, &r, &g, &b, &a)
-
 	sdl.SetRenderDrawColor(e.renderer, color.r, color.g, color.b, color.a)
 
 	text := fmt.tprint(..args)
@@ -23,6 +20,4 @@ draw_debug_text :: proc(e: ^Engine, color: Color, x: f32, y: f32, args: ..any) {
 		)
 		y_offset += 10.0
 	}
-
-	sdl.SetRenderDrawColor(e.renderer, r, g, b, a)
 }

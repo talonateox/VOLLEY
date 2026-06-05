@@ -68,6 +68,7 @@ _resized :: proc(e: ^Engine) {
 }
 
 clear :: proc(e: ^Engine) {
+	sdl.SetRenderDrawColor(e.renderer, 0, 0, 0, 255)
 	sdl.RenderClear(e.renderer)
 }
 
