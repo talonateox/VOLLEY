@@ -33,11 +33,10 @@ load_map :: proc(path: string) -> (Map, Map_Error) {
 		return {}, .Failed_To_Open_File
 	}
 
-	src, _ := strings.clone_from_bytes(src_raw)
+	src := strings.clone_from_bytes(src_raw, context.temp_allocator)
+	data_lines := strings.split_lines(src, context.temp_allocator)
 
-	data_lines := strings.split_lines(src)
-
-	meta, _ := strings.split(data_lines[0], " ")
+	meta := strings.split(data_lines[0], " ", context.temp_allocator)
 	if len(meta) != 3 {
 		return {}, .Malformed_Map_Meta
 	}
@@ -58,7 +57,7 @@ load_map :: proc(path: string) -> (Map, Map_Error) {
 	y := 0
 	for row in data_lines[1:] {
 		x := 0
-		col, _ := strings.split(row, " ")
+		col, _ := strings.split(row, " ", context.temp_allocator)
 		if len(col) != w {
 			delete(tiles)
 			return {}, .Malformed_Map_Data
