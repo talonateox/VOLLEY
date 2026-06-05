@@ -63,10 +63,8 @@ state_manager_swap :: proc(sm: ^State_Manager, next_state: shared.State_Kind) {
 
 	switch next_state {
 	case .Loading:
-		state := loading.init(sm._engine)
-		sm.current_state = state
+		sm.current_state = loading.init(sm._engine)
 	case .Game:
-		state := game.init(sm._engine)
-		sm.current_state = state
+		sm.current_state = game.init(sm._engine)
 	}
 }
