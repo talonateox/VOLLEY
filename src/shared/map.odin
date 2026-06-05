@@ -46,8 +46,6 @@ load_map :: proc(path: string) -> (Map, Map_Error) {
 		return {}, .Malformed_Map_Meta
 	}
 
-	name := meta[2]
-
 	if len(data_lines) - 1 != h {
 		return {}, .Malformed_Map_Data
 	}
@@ -79,5 +77,6 @@ load_map :: proc(path: string) -> (Map, Map_Error) {
 		y += 1
 	}
 
+	name := strings.clone(meta[2])
 	return {w = w, h = h, name = name, tiles = tiles}, nil
 }
