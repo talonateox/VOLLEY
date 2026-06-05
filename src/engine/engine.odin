@@ -10,6 +10,9 @@ Engine :: struct {
 	renderer:      ^sdl.Renderer,
 	running:       bool,
 	width, height: int,
+	keyboard:      Keyboard,
+	dt:            f32,
+	last_ticks:    f32,
 }
 
 create :: proc(title: cstring, w, h: i32) -> (Engine, bool) {
@@ -36,6 +39,8 @@ create :: proc(title: cstring, w, h: i32) -> (Engine, bool) {
 	engine.running = true
 
 	engine.width, engine.height = cast(int)w, cast(int)h
+	engine.keyboard = {}
+	engine.last_ticks = ticks_sec()
 
 	return engine, true
 }
@@ -48,6 +53,10 @@ destroy :: proc(e: ^Engine) {
 }
 
 poll_events :: proc(e: ^Engine) {
+	now := ticks_sec()
+	e.dt = now - e.last_ticks
+	e.last_ticks = now
+
 	ev: sdl.Event
 
 	for sdl.PollEvent(&ev) {
@@ -56,6 +65,8 @@ poll_events :: proc(e: ^Engine) {
 			e.running = false
 		case .WINDOW_RESIZED:
 			_resized(e)
+		case .KEY_DOWN, .KEY_UP:
+			_keyboard_event(&e.keyboard, ev)
 		}
 	}
 }

@@ -23,8 +23,13 @@ Map :: struct {
 	tiles: []Tile_Type,
 }
 
-get_tile :: proc(tiles: []Tile_Type, x, y: u32) {
+get_tile :: proc(m: ^Map, x, y: int) -> Tile_Type {
+	if x < 0 || y < 0 || x >= m.w || y >= m.h do return .WALL
+	return m.tiles[y * m.w + x]
+}
 
+is_solid :: proc(t: Tile_Type) -> bool {
+	return t == .WALL || t == .FLOOR
 }
 
 load_map :: proc(path: string) -> (Map, Map_Error) {
