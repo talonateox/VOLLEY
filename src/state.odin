@@ -5,23 +5,26 @@ import "game"
 import "loading"
 import "shared"
 
+State :: union {
+	loading.Loading_State,
+	game.Game_State,
+}
+
 State_Manager :: struct {
-	current_state: shared.State_Kind,
+	current_state: State,
 	_engine:       ^engine.Engine,
-	loading_state: loading.Loading_State,
-	game_state:    game.Game_State,
 }
 
 create_state_manager :: proc(engine: ^engine.Engine) -> State_Manager {
-	return {_engine = engine, current_state = .Loading, loading_state = loading.init(engine)}
+	return {_engine = engine, current_state = loading.init(engine)}
 }
 
 destroy_state_manager :: proc(sm: ^State_Manager) {
-	switch sm.current_state {
-	case .Loading:
-		loading.destroy(&sm.loading_state, sm._engine)
-	case .Game:
-		game.destroy(&sm.game_state, sm._engine)
+	switch &v in sm.current_state {
+	case loading.Loading_State:
+		loading.destroy(&v, sm._engine)
+	case game.Game_State:
+		game.destroy(&v, sm._engine)
 	}
 }
 
@@ -30,11 +33,11 @@ update_state_manager :: proc(sm: ^State_Manager) {
 
 	next_state: Maybe(shared.State_Kind)
 
-	switch sm.current_state {
-	case .Loading:
-		next_state = loading.update(&sm.loading_state, sm._engine)
-	case .Game:
-		next_state = game.update(&sm.game_state, sm._engine)
+	switch &v in sm.current_state {
+	case loading.Loading_State:
+		next_state = loading.update(&v, sm._engine)
+	case game.Game_State:
+		next_state = game.update(&v, sm._engine)
 	}
 
 	if state, ok := next_state.?; ok {
@@ -45,11 +48,11 @@ update_state_manager :: proc(sm: ^State_Manager) {
 draw_state_manager :: proc(sm: ^State_Manager) {
 	engine.clear(sm._engine)
 
-	switch sm.current_state {
-	case .Loading:
-		loading.draw(&sm.loading_state, sm._engine)
-	case .Game:
-		game.draw(&sm.game_state, sm._engine)
+	switch &v in sm.current_state {
+	case loading.Loading_State:
+		loading.draw(&v, sm._engine)
+	case game.Game_State:
+		game.draw(&v, sm._engine)
 	}
 
 	engine.present(sm._engine)
@@ -58,12 +61,12 @@ draw_state_manager :: proc(sm: ^State_Manager) {
 state_manager_swap :: proc(sm: ^State_Manager, next_state: shared.State_Kind) {
 	destroy_state_manager(sm)
 
-	sm.current_state = next_state
-
-	switch sm.current_state {
+	switch next_state {
 	case .Loading:
-		sm.loading_state = loading.init(sm._engine)
+		state := loading.init(sm._engine)
+		sm.current_state = state
 	case .Game:
-		sm.game_state = game.init(sm._engine)
+		state := game.init(sm._engine)
+		sm.current_state = state
 	}
 }
