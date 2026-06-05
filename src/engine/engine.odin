@@ -1,15 +1,16 @@
 package engine
 
+import "core:c"
 import "core:fmt"
 import "core:strings"
 import sdl "vendor:sdl3"
 
 Engine :: struct {
-	window:   ^sdl.Window,
-	renderer: ^sdl.Renderer,
-	running:  bool,
+	window:        ^sdl.Window,
+	renderer:      ^sdl.Renderer,
+	running:       bool,
+	width, height: int,
 }
-
 
 create :: proc(title: cstring, w, h: i32) -> (Engine, bool) {
 	if !sdl.Init({.VIDEO, .AUDIO}) {
@@ -34,6 +35,8 @@ create :: proc(title: cstring, w, h: i32) -> (Engine, bool) {
 
 	engine.running = true
 
+	engine.width, engine.height = cast(int)w, cast(int)h
+
 	return engine, true
 }
 
@@ -51,8 +54,25 @@ poll_events :: proc(e: ^Engine) {
 		#partial switch ev.type {
 		case .QUIT:
 			e.running = false
+		case .WINDOW_RESIZED:
+			_resized(e)
 		}
 	}
+}
+
+_resized :: proc(e: ^Engine) {
+	w, h: c.int = 0, 0
+
+	sdl.GetWindowSize(e.window, &w, &h)
+	e.width, e.height = cast(int)w, cast(int)h
+}
+
+clear :: proc(e: ^Engine) {
+	sdl.RenderClear(e.renderer)
+}
+
+present :: proc(e: ^Engine) {
+	sdl.RenderPresent(e.renderer)
 }
 
 ticks_sec :: proc() -> f32 {

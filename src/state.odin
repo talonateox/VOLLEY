@@ -26,6 +26,8 @@ destroy_state_manager :: proc(sm: ^State_Manager) {
 }
 
 update_state_manager :: proc(sm: ^State_Manager) {
+	free_all(context.temp_allocator)
+
 	next_state: Maybe(shared.State_Kind)
 
 	switch sm.current_state {
@@ -41,12 +43,16 @@ update_state_manager :: proc(sm: ^State_Manager) {
 }
 
 draw_state_manager :: proc(sm: ^State_Manager) {
+	engine.clear(sm._engine)
+
 	switch sm.current_state {
 	case .Loading:
 		loading.draw(&sm.loading_state, sm._engine)
 	case .Game:
 		game.draw(&sm.game_state, sm._engine)
 	}
+
+	engine.present(sm._engine)
 }
 
 state_manager_swap :: proc(sm: ^State_Manager, next_state: shared.State_Kind) {

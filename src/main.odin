@@ -1,6 +1,5 @@
 package main
 
-import "core:fmt"
 import "engine"
 
 main :: proc() {
